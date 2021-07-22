@@ -1,4 +1,4 @@
-import { GIFTS_GENERATE_COUNT, GIFTS_GENERATE_DELAY, GIFT_POINTS } from "../../consts";
+import { GIFTS_GENERATE_COUNT, GIFTS_GENERATE_DELAY, GIFT_POINTS, GROUND_OFFSET } from "../../consts";
 import { generateGroupItemsPositions } from "../../helpers/group";
 import { createGroupChildren, createGroup, clearGroupChildren } from "../../helpers/scene";
 import { getScoreText } from "../../helpers/score";
@@ -19,7 +19,7 @@ export function createGifts(scene: Phaser.Scene): Phaser.Physics.Arcade.Group {
 function giftsGenerator(starsGroup: Phaser.Physics.Arcade.Group, starsCount: number, delay: number) {
     giftsGeneratorTimerId = window.setInterval(() => {
         const [height, width] = getWindowInnerSize()
-        const giftsPositions = generateGroupItemsPositions(starsCount, width, height)
+        const giftsPositions = generateGroupItemsPositions(starsCount, width, height - GROUND_OFFSET)
 
         createGroupChildren(starsGroup, Images.Gift, giftsPositions)
     }, delay);

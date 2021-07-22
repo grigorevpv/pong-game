@@ -1,4 +1,5 @@
 import { setMaxScore } from "../scripts/objects/scoreText";
+import { Coordinate } from "../types";
 import { LocalStorage } from "../utils/localStorage"
 
 export function getScoreText(text: string, value: number) {
@@ -17,5 +18,26 @@ export function increaseScore(scoreText: Phaser.GameObjects.Text, maxScore: numb
 
         setMaxScore(maxScore, currentScore)
         scoreText.setText(getScoreText("Score", currentScore))
+    }
+}
+
+export function getMaxScoreTextPosition(
+    screenWidth: number,
+    screenWidthBreakpoint: number,
+    indentX: number,
+    indentY: number,
+    textWidth: number,
+    textHeight: number
+): Coordinate {
+    if(screenWidth < screenWidthBreakpoint) {
+        return {
+            x: indentX,
+            y: indentY + textHeight
+        }
+    }
+
+    return {
+        x: screenWidth - textWidth,
+        y: indentY
     }
 }

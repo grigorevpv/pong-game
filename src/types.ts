@@ -30,9 +30,13 @@ export enum GameType {
     Arcade = 'arcade'
 }
 
-export interface GroupItemPosition {
+export interface Coordinate {
     x: number;
     y: number;
+    z?: number;
+}
+
+export interface GroupItemPosition extends Coordinate {
     scale?: number;
 }
 

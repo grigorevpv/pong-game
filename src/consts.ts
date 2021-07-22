@@ -8,11 +8,12 @@ export const DEFAULT_FRAME_WIDTH = 32;
 
 export const SCENE_LEVEL_ONE = "level1";
 export const GAME_CONTAINER_ID = "test-game";
+export const GAME_SCORE_KEY = "game-score";
 
 export const YELLOW_STAR_POINTS = 10;
 export const GIFT_POINTS = 25;
 
-export const GIFTS_GENERATE_COUNT = 3;
+export const GIFTS_GENERATE_COUNT = 1;
 export const BOMBS_GENERATE_COUNT = 3;
 export const STARS_GENERATE_COUNT = 5;
 export const BALLS_GENERATE_COUNT = 5;
@@ -25,6 +26,8 @@ export const STARS_GENERATE_DELAY = 7000;
 export const BOMBS_DESTROY_DELAY = 13000;
 export const GIFT_DESTROY_DELAY = 7000;
 export const BALLS_DESTROY_DELAY = 5000;
+
+export const GROUND_OFFSET = 120;
 
 export const ARCADE_GAME_PHYSICS = {
     default: GameType.Arcade,
@@ -48,7 +51,7 @@ export const GAME_PLAYER_SPRITE_BOUNCE = 0.2;
 export const platformsPositionsArr = [
     {
         x: 400,
-        y: 568,
+        y: 600,
         scale: 2
     },
     {

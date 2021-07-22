@@ -1,5 +1,5 @@
 import 'phaser'
-import { ARCADE_GAME_PHYSICS, SCENE_LEVEL_ONE } from '../consts'
+import { ARCADE_GAME_PHYSICS, GAME_SCORE_KEY, SCENE_LEVEL_ONE } from '../consts'
 import { getSceneImages, getSceneSpriteSheets } from '../helpers/asserts'
 import { createCursor, onLeftButtonDown, onNoneButtonDown, onRightButtonDown, onUpButtonDown } from '../helpers/cursor'
 import { clearIntervals } from '../helpers/group'
@@ -52,7 +52,7 @@ function mainScenePreload(scene: Phaser.Scene) {
 
 function mainSceneCreate(scene: Phaser.Scene) {
   return function() {
-    const maxScore = Number(localStorage.getItem("game-score"))
+    const maxScore = Number(localStorage.getItem(GAME_SCORE_KEY))
     const platforms = createPlatforms(scene)
     const stars = createStars(scene)
     const balls = createBalls(scene)
@@ -71,12 +71,9 @@ function mainSceneCreate(scene: Phaser.Scene) {
     addSceneCollider(scene, gifts, platforms)
     addSceneCollider(scene, bombs, platforms)
     addSceneCollider(scene, player, balls)
-    addSceneCollider(scene, gifts, balls)
-    addSceneCollider(scene, gifts, gifts)
     addSceneCollider(scene, balls, balls)
     addSceneCollider(scene, balls, bombs)
     addSceneCollider(scene, bombs, bombs)
-    addSceneCollider(scene, gifts, bombs)
 
     addSceneOverlap(scene, player, stars, overlapStarCallback(updateScore))
     addSceneOverlap(scene, player, gifts, overlapGiftCallback(updateScore))
