@@ -1,83 +1,41 @@
-export interface SceneImage {
-    name: string;
-    src: string;
+/* eslint-disable no-unused-vars */
+export enum Image {
+    Ball = 'ball',
+    Background = 'background',
+    Bonus = 'bonus',
+    Block1 = 'block1',
+    Block2 = 'block2',
+    Platform1 = 'platform1',
+    Fire1 = 'fire1',
 }
 
-export interface FrameSize {
-    frameWidth: number,
-    frameHeight: number,
+export interface ItemSize {
+    height: number;
+    width: number;
 }
 
-export interface SceneSpriteSheet {
-    name: string;
-    src: string;
-    frameSize: FrameSize;
-}
+export type WindowSize = ItemSize;
 
-export interface GamePhysicsArcade {
-    default: GameType.Arcade;
-    [GameType.Arcade]: {
-        gravity: {
-            y: number;
-        },
-        debug: boolean;
-    }
-}
-
-export type GamePhysics = GamePhysicsArcade;
-
-export enum GameType {
-    Arcade = 'arcade'
-}
-
-export interface Coordinate {
+export interface ItemPosition {
     x: number;
     y: number;
-    z?: number;
 }
 
-export interface GroupItemPosition extends Coordinate {
-    scale?: number;
+export enum PlatformType {
+    Green,
+    Blue,
+    Bonus,
 }
 
-export interface StaticGroupItem extends GroupItemPosition {
-    name: string;
+export interface PlatformData {
+    type: PlatformType,
+    image: Image,
+    points: number,
+    particlesImage: Image,
 }
 
-export interface Sprite extends StaticGroupItem {}
+export type PlatformPoints = Record<PlatformType, number>;
 
-export interface FrameNumbers {
-    key: SpriteSheets,
-    start?: number;
-    end?: number;
-    frame?: number;
-}
+export type PlatformImage = Record<PlatformType, Image>;
 
-export interface SpriteAnims {
-    key: Key;
-    frames: FrameNumbers;
-    frameRate: number;
-    repeat?: number;
-}
-
-export enum Key {
-    Left = 'left',
-    Turn = 'turn',
-    Right = 'right',
-}
-
-export enum Images {
-    Bomb = 'bomb',
-    Platform = 'platform',
-    Sky = 'sky',
-    Star = 'star',
-    Ball = 'ball',
-    Bum = 'bum',
-    Gift = 'gift'
-};
-
-export enum SpriteSheets {
-    Dude = 'dude',
-}
-
-export type Asserts = Images | SpriteSheets;
+export type PlatformParticlesImage = Record<PlatformType, Image>;

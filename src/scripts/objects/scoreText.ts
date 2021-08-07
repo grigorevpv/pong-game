@@ -1,32 +1,28 @@
-import { GAME_SCORE_KEY } from "../../consts"
-import { getMaxScoreTextPosition, getScoreText } from "../../helpers/score"
-import { getWindowInnerSize } from "../../utils/dom"
+import * as Phaser from 'phaser';
 
-const textIndentX = 16
-const textIndentY = 16
-const screenWidthBreakPoint = 768
-const maxScoreTextWidth = 312
-const maxScoreTextHeight = 50
+export class ScoreText extends Phaser.GameObjects.Text {
+  private score: number;
 
-const scoreText = "Score"
-const maxScoreText = "Max Score"
+  private scoreText = 'Score:';
 
-export function createScoreText(scene: Phaser.Scene): Phaser.GameObjects.Text {
-    const text = getScoreText(scoreText, 0);
-    return scene.add.text(textIndentX, textIndentY, text, { fontSize: '32px' })
-}
+  constructor(
+    scene: Phaser.Scene, x: number, y: number,
+    text: string, style: Phaser.Types.GameObjects.Text.TextStyle,
+  ) {
+    super(scene, x, y, text, style);
 
-export function createMaxScoreText(scene: Phaser.Scene): Phaser.GameObjects.Text {
-    const maxScore = Number(localStorage.getItem(GAME_SCORE_KEY))
-    const text = getScoreText(maxScoreText, maxScore)
-    const [height, width] = getWindowInnerSize();
-    const maxScoreCoordinate = getMaxScoreTextPosition(width, screenWidthBreakPoint, textIndentX, textIndentY, maxScoreTextWidth, maxScoreTextHeight)
+    this.score = 0;
 
-    return scene.add.text(maxScoreCoordinate.x, maxScoreCoordinate.y, text, { fontSize: '32px' })
-}
+    this.setText(this.getScoreText());
+    scene.add.existing(this);
+  }
 
-export function setMaxScore(maxScore: number, currentScore: number) {
-    if (currentScore > maxScore) {
-        localStorage.setItem(GAME_SCORE_KEY, currentScore.toFixed())
-    }
+  public increaseScore(points: number) {
+    this.score += points;
+    this.setText(this.getScoreText());
+  }
+
+  private getScoreText() {
+    return `${this.scoreText} ${this.score}`;
+  }
 }

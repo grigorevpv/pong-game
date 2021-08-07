@@ -1,46 +1,46 @@
-import * as Phaser from "phaser";
+import * as Phaser from 'phaser';
 
 class ScenesProvider {
-    private _scenes: Record<string, Phaser.Scene> = {};
+  private scenes: Record<string, Phaser.Scene> = {};
 
-    public createNewScene(name: string) {
-        const scene = new Phaser.Scene({ key: name });
-        this._scenes[name] = scene;
+  public createNewScene(name: string) {
+    const scene = new Phaser.Scene({ key: name });
+    this.scenes[name] = scene;
 
-        return scene;
+    return scene;
+  }
+
+  public setSceneUpdateFunction(name: string, update: () => void) {
+    if (!this.scenes[name]) {
+      return;
     }
 
-    public setSceneUpdateFunction(name: string, update: () => void) {
-        if (!this._scenes[name]) {
-            return;
-        }
+    this.scenes[name].update = update;
+  }
 
-        this._scenes[name].update = update;
+  public setSceneCreateFunction(name: string, create: () => void) {
+    if (!this.scenes[name]) {
+      return;
     }
 
-    public setSceneCreateFunction(name: string, create: () => void) {
-        if (!this._scenes[name]) {
-            return;
-        }
+    (this.scenes[name] as any).create = create;
+  }
 
-        (this._scenes[name] as any).create = create;
+  public setScenePreloadFunction(name: string, preload: () => void) {
+    if (!this.scenes[name]) {
+      return;
     }
 
-    public setScenePreloadFunction(name: string, preload: () => void) {
-        if (!this._scenes[name]) {
-            return;
-        }
+    (this.scenes[name] as any).preload = preload;
+  }
 
-        (this._scenes[name] as any).preload = preload;
+  public getScene(name: string): Phaser.Scene | null {
+    if (!this.scenes[name]) {
+      return null;
     }
 
-    public getScene(name: string): Phaser.Scene | null {
-        if (!this._scenes[name]) {
-            return null;
-        }
-
-        return this._scenes[name];
-    }
+    return this.scenes[name];
+  }
 }
 
 export default new ScenesProvider();
