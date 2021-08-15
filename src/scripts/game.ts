@@ -1,4 +1,8 @@
 import * as Phaser from 'phaser';
+import 'phaser/plugins/spine/dist/SpinePlugin';
+
+// eslint-disable-next-line no-unused-vars
+// import SpineWebGLPlugin from '../plugins/SpineWebGLPlugin';
 
 import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from '../const';
 import { getWindowSize } from '../utils/screen';
@@ -8,7 +12,7 @@ export function getGameConfig(scenes: Phaser.Scene[]) {
   const { height, width } = getWindowSize();
 
   return {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     backgroundColor: '#1199DD',
     scale: {
       parent: 'phaser-game',
@@ -23,6 +27,15 @@ export function getGameConfig(scenes: Phaser.Scene[]) {
         gravity: {},
         debug: false,
       },
+    },
+    plugins: {
+      scene: [
+        {
+          key: 'SpinePlugin',
+          plugin: window.SpinePlugin,
+          sceneKey: 'spine',
+        },
+      ],
     },
     scene: [...scenes],
   };

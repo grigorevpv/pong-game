@@ -15,6 +15,7 @@ import { PlatformSprite } from '../objects/PlatformSprite';
 import { BallSprite } from '../objects/BallSprite';
 import { BALL_SPEED, PLATFORMS_COUNT, PLATFORM_SPEED } from '../../const';
 import { ScoreText } from '../objects/ScoreText';
+import { InfoText } from '../objects/InfoText';
 
 let gameOver = false;
 let gameIsPaused = false;
@@ -38,9 +39,7 @@ export class MainScene extends Phaser.Scene {
 
   private particleBlue: Phaser.GameObjects.Particles.ParticleEmitterManager;
 
-  private pauseText: Phaser.GameObjects.Text;
-
-  private gameOverText: Phaser.GameObjects.Text;
+  private infoText: InfoText;
 
   private scoreText: ScoreText;
 
@@ -55,6 +54,9 @@ export class MainScene extends Phaser.Scene {
   public preload() {
     const imagesPaths = getImages();
     this.load.image(imagesPaths);
+
+    this.load.setPath('assets/spine1/');
+    this.load.spine('coin', 'coin-pro.json', 'coin-pro.atlas');
   }
 
   public create() {
@@ -65,13 +67,14 @@ export class MainScene extends Phaser.Scene {
     this.createTaiParticles();
     this.createCollideParticles();
     this.createPlatformSprite(Image.Platform1, getPlatformPosition());
-    this.createPauseText();
-    this.createGameOverText();
+    this.createInfoText();
     this.addColliders();
     this.addKeyboardInterrapt();
 
     this.createScoreText();
     this.platformCounts = PLATFORMS_COUNT;
+
+    this.add.spine(200, 200, 'coin', 'animation', true);
   }
 
   public update() {
@@ -88,7 +91,7 @@ export class MainScene extends Phaser.Scene {
     gameOver = true;
     this.ball.setVelocity(0, 0);
     this.tailEmitter.setVisible(false);
-    this.gameOverText.setVisible(true);
+    this.infoText.showGameoverText();
   }
 
   private createBackground() {
@@ -183,28 +186,14 @@ export class MainScene extends Phaser.Scene {
     this.particleBlue.createEmitter(collideEmitterConfig);
   }
 
-  private createPauseText() {
+  private createInfoText() {
     const { height, width } = getWindowSize();
     const fontSize = width > 720 ? 32 : 14;
     const textIndent = width > 720 ? 275 : 125;
     const posX = width / 2 - textIndent;
     const posY = height / 2;
 
-    this.pauseText = this.add.text(posX, posY, 'Game paused, press SPACE to continue', { font: `${fontSize}px Arial` });
-    this.pauseText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
-    this.pauseText.setVisible(false);
-  }
-
-  private createGameOverText() {
-    const { height, width } = getWindowSize();
-    const fontSize = width > 720 ? 32 : 14;
-    const textIndent = width > 720 ? 275 : 125;
-    const posX = width / 2 - textIndent;
-    const posY = height / 2;
-
-    this.gameOverText = this.add.text(posX, posY, 'Game over, press SPACE to restart', { font: `${fontSize}px Arial` });
-    this.gameOverText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
-    this.gameOverText.setVisible(false);
+    this.infoText = new InfoText(this, posX, posY, '', { font: `${fontSize}px Arial` });
   }
 
   private addKeyboardInterrapt() {
@@ -219,7 +208,7 @@ export class MainScene extends Phaser.Scene {
         this.ball.setVelocity(ballVelosity.x, ballVelosity.y);
         this.tailEmitter.setVisible(true);
         gameIsPaused = false;
-        this.pauseText.setVisible(false);
+        this.infoText.hideInfoText();
       } else {
         gameIsPaused = true;
         ballVelosity = {
@@ -228,7 +217,7 @@ export class MainScene extends Phaser.Scene {
         };
         this.ball.setVelocity(0, 0);
         this.tailEmitter.setVisible(false);
-        this.pauseText.setVisible(true);
+        this.infoText.showPauseText();
       }
     });
   }

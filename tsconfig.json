@@ -15,6 +15,12 @@
     "strictPropertyInitialization": false,
 
     "moduleResolution": "node",
-    "lib": ["dom", "esnext"]
-  }
+    "lib": ["dom", "esnext"],
+
+    "typeRoots": [
+      "@types",
+      "node_modules/@types",
+      "node_module/phaser/types"
+    ]
+  },
 }

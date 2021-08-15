@@ -4,7 +4,7 @@ const GAMEOVER_TEXT = 'Game over, press SPACE to restart';
 
 const PAUSE_TEXT = 'Game paused, press SPACE to continue';
 
-export class ScoreText extends Phaser.GameObjects.Text {
+export class InfoText extends Phaser.GameObjects.Text {
   constructor(
     scene: Phaser.Scene, x: number, y: number,
     text: string, style: Phaser.Types.GameObjects.Text.TextStyle,
