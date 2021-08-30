@@ -5,7 +5,7 @@
     "width": 97.45,
     "height": 142.36,
     "images": "./boy/",
-    "audio": ""
+    "audio": "/home/yannick/Desktop/phaser3-typescript-platformer-example/src/assets/spine"
   },
   "bones": [
     { "name": "root" },

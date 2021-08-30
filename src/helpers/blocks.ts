@@ -6,9 +6,11 @@ import {
   platformPoints,
   platformImage,
   platformParticlesImage,
+  PLATFORM_HEIGHT,
   WIDE_SCREEN,
 } from '../const';
-import { BlockTileSprite } from '../scripts/objects/BlockSprite';
+import { BlocksGroup } from '../scripts/objects/BlocksGroup';
+import { BlockTileSprite } from '../scripts/objects/BlockTileSprite';
 import { MainScene } from '../scripts/scenes/MainScene';
 import {
   ItemSize,
@@ -17,7 +19,6 @@ import {
 } from '../types';
 import { getWindowSize } from '../utils/screen';
 
-const PLATFORM_HEIGHT = 32;
 const NARROW_PLATFORM_WIDTH = 68;
 const MEDIUM_PLATFORM_WIDTH = 68;
 const WIDE_PLATFORM_WIDTH = 136;
@@ -53,9 +54,9 @@ export function getBlocksScale(width: number) {
   return ratio;
 }
 
-export function getPlatformsCoordinates(width: number, height: number): Array<[number, number]> {
+export function getBlocksCoordinates(width: number, height: number): Array<[number, number]> {
   let rowCount = 3;
-  let colCount = 8;
+  let colCount = 7;
 
   if (width < WIDE_SCREEN) {
     rowCount = 6;
@@ -105,12 +106,13 @@ export function getPlatformData(platformType: PlatformType): PlatformData {
   };
 }
 
-export function createBlocksItems(platform: Phaser.Physics.Arcade.StaticGroup, scene: MainScene) {
+export function createSimpleBlocksGroup(scene: MainScene): Phaser.Physics.Arcade.StaticGroup {
+  const blocksGroup = scene.physics.add.staticGroup();
   const { width, height } = getWindowSize();
-  const platformCoords = getPlatformsCoordinates(width, height);
+  const blockCoords = getBlocksCoordinates(width, height);
   const { height: platformHeight, width: platformWidth } = getPlatformSize(width);
 
-  platformCoords.forEach((platformCoord, index) => {
+  blockCoords.forEach((platformCoord, index) => {
     let type = getPlatformType(index);
 
     if (index === 3) {
@@ -118,23 +120,59 @@ export function createBlocksItems(platform: Phaser.Physics.Arcade.StaticGroup, s
     }
 
     const { image, points } = getPlatformData(type);
-    const platformSprite = new BlockTileSprite(
-      scene, platformCoord[1], platformCoord[0], platformWidth,
-      platformHeight, image, type, points, index,
-    );
 
-    platform.add(platformSprite);
+    if (type === PlatformType.Green || type === PlatformType.Bonus) {
+      const platformSprite = new BlockTileSprite(
+        scene, platformCoord[1], platformCoord[0], platformWidth,
+        platformHeight, image, type, points, index,
+      );
+
+      blocksGroup.add(platformSprite);
+    }
   });
+
+  return blocksGroup;
+}
+
+export function createComplexBlocksGroupsArr(
+  scene: MainScene,
+  world: Phaser.Physics.Arcade.World,
+): Phaser.Physics.Arcade.StaticGroup[] {
+  const { width, height } = getWindowSize();
+  const blockCoords = getBlocksCoordinates(width, height);
+  const blocksGroupsArr: BlocksGroup[] = [];
+
+  blockCoords.forEach((platformCoord, index) => {
+    let type = getPlatformType(index);
+
+    if (index === 3) {
+      type = PlatformType.Bonus;
+    }
+
+    if (type === PlatformType.Blue) {
+      const blocksGroup = new BlocksGroup(
+        scene, world, platformCoord[1], platformCoord[0], type, index,
+      );
+
+      blocksGroupsArr.push(blocksGroup);
+    }
+  });
+
+  return blocksGroupsArr;
 }
 
 export function onResizeBlocksEffect(blocks: Phaser.Physics.Arcade.StaticGroup) {
   const { width, height } = getWindowSize();
-  const platformCoords = getPlatformsCoordinates(width, height);
+  const blockCoords = getBlocksCoordinates(width, height);
 
   blocks.getChildren().forEach((block) => {
     const blockIndex = block.getData('index');
-    const blockCoordinates = platformCoords[blockIndex] || [0, 0];
+    const blockCoordinates = blockCoords[blockIndex] || [0, 0];
 
     (block as BlockTileSprite).onResize(blockCoordinates[1], blockCoordinates[0]);
   });
+}
+
+export function getBlockGroupItemId(index: number, position: number) {
+  return `block-${index}-${position}`;
 }

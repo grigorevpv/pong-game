@@ -24,7 +24,9 @@ export function getGameConfig(scenes: Phaser.Scene[]) {
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: {},
+        gravity: {
+          y: 0,
+        },
         debug: false,
       },
     },

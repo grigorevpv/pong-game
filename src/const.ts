@@ -18,6 +18,8 @@ export const BALL_SPEED = 300;
 
 export const PLATFORMS_COUNT = 24;
 
+export const PLATFORM_HEIGHT = 32;
+
 export const mainSceneName = 'mainScene';
 
 export const platformPoints: PlatformPoints = {

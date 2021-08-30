@@ -1,44 +1,33 @@
-/* eslint-disable no-unused-vars */
 import * as Phaser from 'phaser';
-import { getBlocksScale } from '../../helpers/blocks';
-import { PlatformType } from '../../types';
-import { getWindowSize } from '../../utils/screen';
 
-export class BlockTileSprite extends Phaser.GameObjects.TileSprite {
+export class BlockSprite extends Phaser.Physics.Arcade.Sprite {
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
-    width: number,
-    height: number,
     texture: string,
-    public blockType: PlatformType,
-    public points: number,
-    public index = 0,
+    id?: string,
+    frame?: string | number,
   ) {
-    super(scene, x, y, width, height, texture);
+    super(scene, x, y, texture, frame);
 
-    this.setBlockData();
-    this.scaleBlock();
+    this.setTexture(texture);
+    this.setPosition(x, y);
 
     scene.add.existing(this);
+    scene.physics.world.enable(this);
+
+    if (id) {
+      this.setData({ id });
+    }
   }
 
-  private setBlockData() {
-    this.setData({
-      type: this.blockType,
-      points: this.points,
-      index: this.index,
-    });
-  }
+  public onCollider() {
+    const velocityX = Math.floor(Math.random() * 50);
+    const velocityY = Math.floor(Math.random() * 200 - 100);
 
-  private scaleBlock() {
-    const { width } = getWindowSize();
-    const platformsScale = getBlocksScale(width);
-    this.scale = platformsScale;
-  }
-
-  public onResize(x: number, y: number) {
-    this.setPosition(x, y);
+    this.body.gravity.y = 300;
+    this.setVelocityY(velocityX);
+    this.setVelocityY(velocityY);
   }
 }

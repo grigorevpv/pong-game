@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import * as Phaser from 'phaser';
 
 import { Image, ItemPosition, PlatformType } from '../../types';
@@ -5,7 +6,8 @@ import { getImages } from '../../helpers/path';
 import { getWindowSize } from '../../utils/screen';
 import {
   collideEmitterConfig,
-  createBlocksItems,
+  createComplexBlocksGroupsArr,
+  createSimpleBlocksGroup,
   onResizeBlocksEffect,
 } from '../../helpers/blocks';
 import { throttle } from '../../utils/throttle';
@@ -16,6 +18,7 @@ import { BallSprite } from '../objects/BallSprite';
 import { BALL_SPEED, PLATFORMS_COUNT, PLATFORM_SPEED } from '../../const';
 import { ScoreText } from '../objects/ScoreText';
 import { InfoText } from '../objects/InfoText';
+import { BlockSprite } from '../objects/BlockSprite';
 
 let gameOver = false;
 let gameIsPaused = false;
@@ -25,7 +28,11 @@ let ballVelosity = {
 };
 
 export class MainScene extends Phaser.Scene {
-  private platforms: Phaser.Physics.Arcade.StaticGroup;
+  private simpleBlocksGroup: Phaser.Physics.Arcade.StaticGroup;
+
+  private complexBlocksGroupsArr: Phaser.Physics.Arcade.StaticGroup[];
+
+  private complexBlocksColliders: Record<number, Phaser.Physics.Arcade.Collider> = {};
 
   private ball: Phaser.Physics.Arcade.Sprite;
 
@@ -54,15 +61,12 @@ export class MainScene extends Phaser.Scene {
   public preload() {
     const imagesPaths = getImages();
     this.load.image(imagesPaths);
-
-    this.load.setPath('assets/spine1/');
-    this.load.spine('coin', 'coin-pro.json', 'coin-pro.atlas');
   }
 
   public create() {
     this.createCursor();
     this.createBackground();
-    this.createPlatformsGroup();
+    this.createBlocksGroup();
     this.createBallSprite();
     this.createTaiParticles();
     this.createCollideParticles();
@@ -73,8 +77,6 @@ export class MainScene extends Phaser.Scene {
 
     this.createScoreText();
     this.platformCounts = PLATFORMS_COUNT;
-
-    this.add.spine(200, 200, 'coin', 'animation', true);
   }
 
   public update() {
@@ -99,9 +101,9 @@ export class MainScene extends Phaser.Scene {
     this.add.tileSprite(0, 0, width * 4, height * 4, Image.Background);
   }
 
-  private createPlatformsGroup() {
-    this.platforms = this.physics.add.staticGroup();
-    createBlocksItems(this.platforms, this);
+  private createBlocksGroup() {
+    this.simpleBlocksGroup = createSimpleBlocksGroup(this);
+    this.complexBlocksGroupsArr = createComplexBlocksGroupsArr(this, this.physics.world);
   }
 
   private createBallSprite() {
@@ -123,11 +125,32 @@ export class MainScene extends Phaser.Scene {
   private addColliders() {
     this.physics.add.collider(this.ball, this.platform);
     this.physics.add.collider(
-      this.ball, this.platforms,
-      this.collidePlatform as () => void,
+      this.ball, this.simpleBlocksGroup,
+      this.collideBlockGroup as () => void,
       undefined,
       this,
     );
+
+    this.complexBlocksGroupsArr.forEach((blocksGroup) => {
+      this.physics.add.collider(blocksGroup, [this.simpleBlocksGroup]);
+      blocksGroup.getChildren().forEach((block) => {
+        const blockGroupItemId = block.getData('id');
+        const colliders = this.complexBlocksColliders;
+
+        colliders[blockGroupItemId] = this.physics.add.collider(
+          this.ball, block,
+          () => {
+            this.decreasePlatformsCount();
+            blocksGroup.getChildren().forEach((blockItem) => {
+              (blockItem as BlockSprite).onCollider();
+              colliders[blockItem.getData('id')].destroy();
+            });
+          },
+          undefined,
+          this,
+        );
+      });
+    });
   }
 
   private createCursor() {
@@ -140,15 +163,22 @@ export class MainScene extends Phaser.Scene {
     this.scoreText = new ScoreText(this, 20, height - 50, '', { fontSize: '24px' });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private resizeListener() {
     window.addEventListener('resize', throttle(() => {
       this.platform.onResize();
-      onResizeBlocksEffect(this.platforms);
+      onResizeBlocksEffect(this.simpleBlocksGroup);
     }, 200));
   }
 
-  private collidePlatform(
+  private decreasePlatformsCount() {
+    this.platformCounts -= 1;
+
+    if (this.platformCounts <= 0) {
+      this.gameOver();
+    }
+  }
+
+  private collideBlockGroup(
     ball: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody,
     platform: Phaser.GameObjects.TileSprite,
   ) {
@@ -158,7 +188,6 @@ export class MainScene extends Phaser.Scene {
 
     platform.destroy();
     particle.emitParticleAt(platform.x, platform.y, 50);
-    this.platformCounts -= 1;
     this.scoreText.increaseScore(platformPoints);
 
     if (platformType === PlatformType.Bonus) {
@@ -169,9 +198,7 @@ export class MainScene extends Phaser.Scene {
       this.platform.scaleX = 1.5;
     }
 
-    if (this.platformCounts <= 0) {
-      this.gameOver();
-    }
+    this.decreasePlatformsCount();
   }
 
   private createTaiParticles() {
